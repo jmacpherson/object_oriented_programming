@@ -10,18 +10,37 @@ class CashRegister
 
   def calc_tax(item)
     tax = 0
-    tax += (item.price * item.calc_tax_rate) / 100
+    tax += ((item.price * item.number) * calc_tax_rate(item)) / 100
   end
 
   def total(item)
-    item.price + item.calc_tax
+    item.price + calc_tax(item)
   end
 
   def receipt(*items)
-    applied_tax = items.inject(0) { |sum,item| sum += item.calc_tax }
-    receipt_total = items.inject(0) { |sum,item| sum =+ item.total }
+    applied_tax = items.inject(0) { |sum,item| sum += calc_tax(item) }
+    receipt_total = items.inject(0) { |sum,item| sum =+ total(item) }
 
     receipt_printout = String.new
-    receipt_printout << items.each { |item| "1 #{item.name}: #{item.price} " } << "Sales Tax: #{applied_tax} Total: #{receipt_total}"
+    receipt_printout << items.each { |item| "#{item.number} #{item.name}: #{item.price} " } << "Sales Tax: #{applied_tax} Total: #{receipt_total}"
   end
+end
+
+class Product
+  attr_reader :price, :number, :imported
+
+  def initialize (price, number=1, imported=false)
+    @price = price
+    @number = number
+    @imported = imported
+  end
+end
+
+class Book < Product
+end
+
+class Food < Product
+end
+
+class Medicine < Product
 end

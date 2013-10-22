@@ -22,3 +22,11 @@ end
 
 chris = Instructor.new("Chris")
 chris.greeting
+cristina = Student.new("Cristina")
+cristina.greeting
+
+chris.teach
+cristina.learn
+
+cristina.teach
+#this returns an undefined method error because cristina, being a student does not have the teach method

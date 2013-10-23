@@ -4,6 +4,8 @@ class CashRegister
   @@sales_tax = 10
   @@import_duty = 5
 
+  # Methods for calculations on individual items
+
   def calc_tax_rate(item)
     tax_rate = 0
     tax_rate += @@import_duty if item.imported
@@ -16,37 +18,47 @@ class CashRegister
     tax = 0
     tax += (((item.price * item.number.to_f) * calc_tax_rate(item).to_f) / 100)
 
-    #round to nearest 0.05
+    #round tax on item to next 0.05
     if tax % 0.05 != 0
       tax += 0.05 - (tax % 0.05)
     end
     
-    tax
+    return tax
   end
 
   def total(item)
     item.price + calc_tax(item)
   end
 
-  def receipt(*items)
-    #calculate tax on each item
+  # Methods for calculations on whole bill
+
+  def calc_all_tax(items)
     items_tax = items.collect { |item| calc_tax(item) }
+  end
 
-    #calculate total tax for receipt
+  def total_tax(*items)
     applied_tax = 0
-    items_tax.each { |tax| applied_tax += tax }
-    # applied_tax = sprintf("%.2f", applied_tax)
+    calc_all_tax(*items).each { |tax| applied_tax += tax }
+    
+    return applied_tax
+  end
 
-    #calculate total price for receipt
+  def receipt_total(items)
     receipt_total = 0
     items.each { |item| receipt_total += total(item) }
 
+    return receipt_total
+  end
+
+  def receipt(*items)
     #return receipt printout
     receipt_printout = String.new
     items.each { |item| receipt_printout << "#{item.number} #{item.name}: #{sprintf("%.2f", total(item))} " }
-    receipt_printout << "Sales Tax: #{sprintf("%.2f",applied_tax)} Total: #{sprintf("%.2f",receipt_total)}"
+    receipt_printout << "Sales Tax: #{sprintf("%.2f",total_tax(items))} Total: #{sprintf("%.2f",receipt_total(items))}"
   end
 end
+
+# Product Class and Subclasses
 
 class Product
   attr_reader :name, :price, :number, :imported
@@ -91,12 +103,5 @@ imp_perfume2 = Product.new("imported bottle of perfume", 27.99, true)
 perfume = Product.new("bottle of perfume", 18.99)
 pills = Medicine.new("packet of headache pills", 9.75)
 imp_choc2 = Food.new("imported box of chocolates", 11.25, true)
-
-# puts "-------------"
-# puts register.calc_tax_rate(imp_perfume2)
-# puts register.calc_tax(imp_perfume2)
-# puts "-------------"
-# puts register.calc_tax_rate(imp_choc2)
-# puts register.calc_tax(imp_choc2)
 
 puts register.receipt(imp_perfume2, perfume, pills, imp_choc2)

@@ -8,6 +8,8 @@ class CashRegister
     tax_rate = 0
     tax_rate += @@import_duty if item.imported
     tax_rate += @@sales_tax unless (item.is_a? Book) || (item.is_a? Food) || (item.is_a? Medicine)
+    
+    return tax_rate
   end
 
   def calc_tax(item)
@@ -41,7 +43,7 @@ class CashRegister
 
     #return receipt printout
     receipt_printout = String.new
-    items.each { |item| receipt_printout << "#{item.number} #{item.name}: #{item.price} " }
+    items.each { |item| receipt_printout << "#{item.number} #{item.name}: #{sprintf("%.2f", total(item))} " }
     receipt_printout << "Sales Tax: #{sprintf("%.2f",applied_tax)} Total: #{sprintf("%.2f",receipt_total)}"
   end
 end
@@ -66,7 +68,7 @@ end
 class Medicine < Product
 end
 
-# Tests
+# Test 1
 
 register = CashRegister.new
 
@@ -74,6 +76,27 @@ book = Book.new("book",12.49)
 cd = Product.new("music CD",14.99)
 choc_bar = Food.new("chocolate bar",0.85)
 
-puts register.calc_tax(cd)
-
 puts register.receipt(book, cd, choc_bar)
+
+# Test 2
+
+imp_choc = Food.new("imported box of chocolates", 10.00, true)
+imp_perfume = Product.new("imported bottle of perfume", 47.50, true)
+
+puts register.receipt(imp_choc, imp_perfume)
+
+# Test 3
+
+imp_perfume2 = Product.new("imported bottle of perfume", 27.99, true)
+perfume = Product.new("bottle of perfume", 18.99)
+pills = Medicine.new("packet of headache pills", 9.75)
+imp_choc2 = Food.new("imported box of chocolates", 11.25, true)
+
+# puts "-------------"
+# puts register.calc_tax_rate(imp_perfume2)
+# puts register.calc_tax(imp_perfume2)
+# puts "-------------"
+# puts register.calc_tax_rate(imp_choc2)
+# puts register.calc_tax(imp_choc2)
+
+puts register.receipt(imp_perfume2, perfume, pills, imp_choc2)
